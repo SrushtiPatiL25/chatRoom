@@ -237,3 +237,10 @@ a {
   font-size: 0.95rem;
   color: rgb(71, 16, 16);
 }
+
+.typing-indicator {
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #888;
+  margin: 5px 10px;
+}

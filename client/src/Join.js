@@ -14,7 +14,9 @@ function Join() {
   return (
     <div className="join-container">
       <header className="join-header">
-        <h1><i className="fas fa-smile"></i> ChatApp</h1>
+        <h1>
+          <i className="fas fa-smile"></i> ChatApp
+        </h1>
       </header>
 
       <main className="join-main">

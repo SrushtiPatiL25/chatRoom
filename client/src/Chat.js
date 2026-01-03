@@ -4,9 +4,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 function Chat() {
   const [messages, setMessages] = useState([]);
+  const [typingUser, setTypingUser] = useState("");
   const [users, setUsers] = useState([]);
   const [room, setRoom] = useState("");
   const messageRef = useRef();
+  const typingTimeoutRef = useRef(null);
   const navigate = useNavigate();
 
   // Get username and room from URL
@@ -30,15 +32,29 @@ function Chat() {
       setRoom(room);
       setUsers(userList);
     };
+    const userTypingHandler = ({ username }) => {
+      setTypingUser(username);
+    };
+
+    const stopUserTypingHandler = () => {
+      setTypingUser("");
+    };
 
     socket.on("message", messageHandler);
     socket.on("messageBot", botMessageHandler);
     socket.on("roomInfo", roomInfoHandler);
+    socket.on("userTyping", userTypingHandler);
+    socket.on("userStopTyping", stopUserTypingHandler);
 
     return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
       socket.off("message", messageHandler);
       socket.off("messageBot", botMessageHandler);
       socket.off("roomInfo", roomInfoHandler);
+      socket.off("userTyping", userTypingHandler);
+      socket.off("userStopTyping", stopUserTypingHandler);
     };
   }, [username, roomName]);
 
@@ -52,6 +68,18 @@ function Chat() {
 
   const handleLeave = () => {
     navigate("/");
+  };
+
+  const handleTyping = () => {
+    socket.emit("typing", { room: roomName, username });
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit("stopTyping", { room: roomName, username });
+    }, 1000);
   };
 
   return (
@@ -79,6 +107,10 @@ function Chat() {
         </div>
 
         <div className="chat-messages">
+          {typingUser && (
+            <p className="typing-indicator">{typingUser} is typing...</p>
+          )}
+
           {messages.map((msg, index) => (
             <div
               key={index}
@@ -102,6 +134,7 @@ function Chat() {
             placeholder="Enter Message"
             required
             autoComplete="off"
+            onChange={handleTyping}
           />
           <button className="btn">Send</button>
         </form>
