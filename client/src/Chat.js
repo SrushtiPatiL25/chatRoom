@@ -17,6 +17,15 @@ function Chat() {
   const username = params.get("username");
   const roomName = params.get("room");
 
+  //auto scroll to last message
+  useEffect(() => {
+  const chat = document.getElementById("chatMessages");
+  if (chat) {
+    chat.scrollTop = chat.scrollHeight;
+  }
+}, [messages, typingUser]);
+
+
   useEffect(() => {
     socket.emit("joinroom", { username, room: roomName });
 
@@ -67,6 +76,7 @@ function Chat() {
   };
 
   const handleLeave = () => {
+    socket.emit("leaveRoom");
     navigate("/");
   };
 
@@ -106,7 +116,7 @@ function Chat() {
           </ul>
         </div>
 
-        <div className="chat-messages">
+        <div className="chat-messages" id="chatMessages">
           {typingUser && (
             <p className="typing-indicator">{typingUser} is typing...</p>
           )}

@@ -39,7 +39,6 @@ io.on("connection", (socket) => {
   socket.on("joinroom", ({ username, room }) => {
     const user = userJoin(socket.id, username, room);
     socket.join(user.room);
-    console.log(username + " joined" + user.room);
 
     socket.emit("messageBot", formatmsg("ChatBot", `Welcome ${user.username}`));
 
@@ -77,7 +76,6 @@ io.on("connection", (socket) => {
 
   socket.on("leaveRoom", () => {
     const user = userLeave(socket.id);
-
     if (user) {
       io.to(user.room).emit(
         "messageBot",
